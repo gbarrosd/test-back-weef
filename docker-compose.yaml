@@ -1,0 +1,52 @@
+version: "3.2"
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=weef
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=bug
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    container_name: backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: >
+      bash -c "
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=bug
+      - DB_USER=weef
+      - DB_PASSWORD=postgres
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:8000
+
+volumes:
+  pgdata:
