@@ -28,13 +28,3 @@ class EventViewSet(
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     parser_classes = (MultiPartParser, FormParser)
-
-    # filterset_fields = {
-    #     "publication_date": ['gte', 'lte'],
-    # }
-    # search_fields = ["title", "content",]
-
-
-# class CommentViewSet(viewsets.ModelViewSet):
-#     queryset = Comment.objects.all()
-#     serializer_class = CommentSerializer
