@@ -20,10 +20,17 @@ from rest_framework.routers import SimpleRouter, DefaultRouter
 from rest_framework_swagger.views import get_swagger_view
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django.contrib.auth.views import LogoutView
+from django.conf import settings
+from django.conf.urls.static import static
 
 from rest_framework import routers
+from user.api.urls import router as user_router
+from event.api.urls import router as event_router
 
 router = routers.SimpleRouter()
+router.registry.extend(user_router.registry)
+router.registry.extend(event_router.registry)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -39,7 +46,9 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include(router.urls,)),
+    path('', include('user.urls')),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path("api/", include(router.urls,)),
     re_path(
         r"^api(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),
@@ -55,3 +64,6 @@ urlpatterns = [
     ),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
