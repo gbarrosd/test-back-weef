@@ -289,7 +289,7 @@ const Events = () => {
                 <DateTimePicker
                   key="event_date_time"
                   margin="dense"
-                  label="Data e Hora"
+                  label={field.replace("_", " ").toUpperCase()}
                   name="event_date_time"
                   value={formData.event_date_time ? dayjs(formData.event_date_time) : null}
                   onChange={handleChangeDate}

@@ -3,7 +3,7 @@ from django.db import transaction
 from rest_framework import response, status
 from datetime import datetime
 from drf_yasg.utils import swagger_serializer_method
-from django.utils.timezone import make_aware
+from datetime import timedelta
 from event.models import (
     Event,
 )
@@ -48,10 +48,20 @@ class EventCreateSerializer(serializers.ModelSerializer):
         validated_data['responsible'] = user
 
         if "event_date_time" in validated_data:
-            validated_data["event_date_time"] = make_aware(validated_data["event_date_time"])
+            validated_data["event_date_time"] -= timedelta(hours=3)
         
         event = Event.objects.create(**validated_data)
         return event
+    
+    def  update(self,instance, validated_data):
+        if "event_date_time" in validated_data:
+            validated_data["event_date_time"] -= timedelta(hours=3)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
 
 class EventRetrieveSerializer(serializers.ModelSerializer):
     responsible = UserListSerializer()
